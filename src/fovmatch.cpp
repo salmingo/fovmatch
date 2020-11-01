@@ -78,8 +78,8 @@ int main(int argc, char **argv) {
 	// 图像与中心指向
 	int wimg(4096), himg(4096);	// 图像宽度和高度
 	double scale_low(11.0), scale_high(12.0); // 像元比例尺, 估计值, 角秒/像素
-//	double rac(230.0), decc(-13.0);	// 中心视场指向, 估计值, 角度
-	double rac(1000.0), decc(-15.0);	// 中心视场指向, 估计值, 角度
+	double rac(230.0), decc(-13.0);	// 中心视场指向, 估计值, 角度
+//	double rac(1000.0), decc(-15.0);	// 中心视场指向, 估计值, 角度
 	double fov;	// 匹配视场, 角分
 	MatchRefsys match;
 

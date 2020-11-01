@@ -90,7 +90,7 @@ public:
 			hit = 1;
 		}
 
-		void incl() {
+		void inc() {
 			++hit;
 		}
 	};
@@ -114,7 +114,7 @@ public:
 		void add_point(int id) {
 			HitPtVec::iterator it;
 			for (it = idPeer.begin(); it != idPeer.end() && it->id != id; ++it);
-			if (it != idPeer.end()) it->incl();
+			if (it != idPeer.end()) it->inc();
 			else {
 				hit_point pt(id);
 				idPeer.push_back(pt);
@@ -163,8 +163,8 @@ protected:
 
 	double scale_low_;	//< 像元比列尺下限, 弧度/像素
 	double scale_high_;	//< 像元比列尺上限
-	double aimg_low_;	//< 阈值: 定向点的中心距
-	double awcs_low_;	//< 阈值: 定向点的中心距
+	double aimg_low_;	//< 阈值: 定向点的中心距, 图像坐标系
+	double awcs_low_;	//< 阈值: 定向点的中心距, 世界坐标系
 
 	int imgsample_;		//< 参与匹配的图像样本数量
 	int wcssample_;		//< 参与匹配的世界样本数量

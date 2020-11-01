@@ -13,10 +13,10 @@ using namespace AstroUtil;
 
 MatchRefsys::MatchRefsys() {
 	aimg_min_ = 50.0;
-	diff_incl_max_ = 0.2;
+	diff_incl_max_ = 0.1;
 	diff_lnormal_max_ = 0.002;
 	shape_count_min_ = 10;
-	count_img_max_ = 30;
+	count_img_max_ = 40;
 	count_wcs_max_ = count_img_max_ * 3;
 	good_match_ = 0.5;
 
@@ -113,16 +113,16 @@ bool MatchRefsys::DoMatch() {
 			if ((id = matched_[i].get_maxhit(ratio)) >= 0 && ratio > 3.0) ++n;
 		}
 		success = n > int(imgsample_ * good_match_);
-//		if (success) {
-//			for (i = 0, n = 0; i < imgsample_; ++i) {
-//				if ((id = matched_[i].get_maxhit(ratio)) >= 0 && ratio > 3.0) {
-//					printf ("%4d %6.1f %6.1f | %4d %8.4f %8.4f | %4lu %4d\n",
-//							i, objimg_[i].x, objimg_[i].y,
-//							id, objwcs_[id].l * R2D, objwcs_[id].b * R2D,
-//							matched_[i].idPeer.size(), int(ratio));
-//				}
-//			}
-//		}
+		if (success) {
+			for (i = 0, n = 0; i < imgsample_; ++i) {
+				if ((id = matched_[i].get_maxhit(ratio)) >= 0 && ratio > 3.0) {
+					printf ("%4d %6.1f %6.1f | %4d %8.4f %8.4f | %4lu %4d\n",
+							i, objimg_[i].x, objimg_[i].y,
+							id, objwcs_[id].l * R2D, objwcs_[id].b * R2D,
+							matched_[i].idPeer.size(), int(ratio));
+				}
+			}
+		}
 	}
 	return success;
 }
@@ -176,7 +176,7 @@ bool MatchRefsys::build_wedge_image(const int idc, const int ido, double angle, 
 			shape.items.push_back(item);
 		}
 	}
-	if (shape.items.size() < 3) return false;
+	if (shape.items.size() < 2) return false;
 	// 填充其它信息
 	shape.idCenter = idc;
 	shape.idOrient = ido;
@@ -215,7 +215,7 @@ bool MatchRefsys::build_wedge_wcs(const int idc, const int ido, double angle, we
 			shape.items.push_back(item);
 		}
 	}
-	if (shape.items.size() < 3) return false;
+	if (shape.items.size() < 2) return false;
 	// 填充其它信息
 	shape.idCenter = idc;
 	shape.idOrient = ido;
