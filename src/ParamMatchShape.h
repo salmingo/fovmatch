@@ -21,38 +21,58 @@ using namespace boost::property_tree;
  * @brief 定义: 模型匹配算法中, 构建/匹配/拟合模型的参数, 以及其存储文件的访问接口
  */
 struct ParamMatchShape {
-	/*------------- 参数: 构建模型 -------------*/
-	/*!
-	 * @brief 参与构建模型样本数量的最大值
-	 * @li 有效范围: [10, infinite)
-	 * - 缺省值: 10
-	 * - 超出范围时采用缺省值
-	 */
-	int count_sample_max_;
-	/*!
-	 * @brief 模型中样本数量的最小值
-	 * - 不含中心和定向两点
-	 * - 有效范围: [1, infinite)
-	 */
-	int count_per_shape_min_;
-	/*!
-	 * @brief 顶角, 量纲: 角度
-	 * - 有效范围: (20, 340)
-	 * - 超出该范围时, 由主程序自动判定顶角
-	 */
-	double apex_angle_;
-	/*!
-	 * @brief 样本与中心点的距离, 与坐标系维度长度的比值的最小值
-	 * - 有效范围: [0.01, 0.2]
-	 * - 缺省值: 0.1
-	 * - 超出范围时, 采用缺省值
-	 */
-	double distance_min_;
-
 	/*------------- 参数: 模型匹配 -------------*/
+	/*!
+	 * @brief 两个模型坐标系的映射关系
+	 * - -1: 旋转方向相同
+	 * - +1: 旋转方向相反, 即沿X或Y轴镜像
+	 * -  0: 不确定映射关系
+	 */
+	int parity;
+	/*!
+	 * @brief 像元张角下限, 量纲: 角秒/像元
+	 * - 有效范围: [0.1, 324.0]
+	  \verbatim
+	  if scale_low < 0.1
+	  	  scale_low = 0.1
+	  elseif scale_low > 324.0
+	  	  scale_low = 324.0
+	  endif
+	  \endverbatim
+	 */
+	double scale_low;
+	/*!
+	 * @brief 像元张角上限, 量纲: 角秒/像元
+	 * - 有效范围: [0.1, 324.0]
+	  \verbatim
+	  if scale_high < 0.1
+	  	  scale_high = 0.1
+	  elseif scale_high > 324.0
+	  	  scale_high = 324.0
+	  endif
+	  \endverbatim
+	 */
+	double scale_high;
+	/*!
+	 * @brief 星表文件路径
+	 */
+	std::string pathcat;
 
-
-	/*------------- 参数: 模型拟合 -------------*/
+	/*------------- 参数: 输出结果 -------------*/
+	/*!
+	 * @brief 处理过程是否在标准输出设备打印
+	 */
+	bool use_stdprint;
+	/*!
+	 * @brief 使用结果输出目录
+	 * - 启用该功能时, 处理结果输出至指定目录
+	 * - 不启用该功能时, 处理结果输出至原始数据目录
+	 */
+	bool use_output_dir;
+	/*!
+	 * @brief 结果输出目录
+	 */
+	std::string output_dir;
 
 protected:
 	char errmsg[256];
@@ -67,15 +87,16 @@ protected:
 	bool init_file(const char* filepath) {
 		ptree pt;
 
-		/* 参数: 构建模型 */
-		pt.put("SampleCount.<xmlattr>.max",    count_sample_max_);
-		pt.put("CountPerShape.<xmlattr>.min",  count_per_shape_min_);
-		pt.put("Apex.<xmlattr>.angle",         apex_angle_);
-		pt.put("DistanceRatio.<xmlattr>.min",  distance_min_);
-
 		/* 参数: 模型匹配 */
+		pt.add("ShapeMatch.<xmlattr>.parity", 0);
+		pt.add("Scale.<xmlattr>.low",  8.3);
+		pt.add("Scale.<xmlattr>.high", 8.5);
+		pt.add("Catalog.<xmlattr>.pathname", "/data/catalog");
 
-		/* 参数: 模型拟合 */
+		/* 参数: 输出结果*/
+		pt.add("StdPrint.<xmlattr>.use",    true);
+		pt.add("Output.<xmlattr>.use",      false);
+		pt.add("Output.<xmlattr>.pathname", "");
 
 		try {
 			xml_writer_settings<std::string> settings(' ', 4);
@@ -100,15 +121,16 @@ public:
 			ptree pt;
 			read_xml(filepath, pt, boost::property_tree::xml_parser::trim_whitespace);
 
-			/* 参数: 构建模型 */
-			count_sample_max_    = pt.get("SampleCount.<xmlattr>.max",   30);
-			count_per_shape_min_ = pt.get("CountPerShape.<xmlattr>.min", 2);
-			apex_angle_          = pt.get("Apex.<xmlattr>.angle",        60.0);
-			distance_min_        = pt.get("DistanceRatio.<xmlattr>.min", 0.1);
-
 			/* 参数: 模型匹配 */
+			parity     = pt.get("ShapeMatch.<xmlattr>.parity", 0);
+			scale_low  = pt.get("Scale.<xmlattr>.low",         0.1);
+			scale_high = pt.get("Scale.<xmlattr>.high",        324.0);
+			pathcat    = pt.get("Catalog.<xmlattr>.pathname",  "");
 
-			/* 参数: 模型拟合 */
+			/* 参数: 输出结果*/
+			use_stdprint   = pt.get("StdPrint.<xmlattr>.use",    true);
+			use_output_dir = pt.get("Output.<xmlattr>.use",      false);
+			output_dir     = pt.get("Output.<xmlattr>.pathname", "");
 
 			return true;
 		}
