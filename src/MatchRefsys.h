@@ -131,13 +131,15 @@ public:
 			int n(idPeer.size());
 			if (!n) return -1;
 
-			int i, id, sechit(1), maxhit(1);
+			int i, id, hit, sechit(1), maxhit(1);
 			for (i = 0; i < n; ++i) {
-				if (maxhit < idPeer[i].hit) {
+				if (maxhit < (hit = idPeer[i].hit)) {
 					sechit = maxhit;
-					maxhit = idPeer[i].hit;
+					maxhit = hit;
 					id     = idPeer[i].id;
 				}
+				else if (sechit < hit)
+					sechit = hit;
 			}
 
 			ratio = double(maxhit) / sechit;
